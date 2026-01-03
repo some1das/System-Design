@@ -1,6 +1,6 @@
 package behavioural.momento_design_pattern.Good_code;
 
-// Stores Internal State of Text Editor
+
 public class EditorMomento {
     private final String content;
 
@@ -11,6 +11,4 @@ public class EditorMomento {
     public String getContent() {
         return this.content;
     }
-
-
 }

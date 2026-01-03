@@ -19,9 +19,3 @@ public class TextEditor {
     }
 }
 
-
-/**
- * Here If we introduce feature of state management then it will voilate SRP
- * As state management is not the responsibility of our TextEditor
- * 
- */
