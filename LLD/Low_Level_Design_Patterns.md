@@ -220,3 +220,16 @@ public class Main {
     }
 }
 ```
+
+### Benifits of Observer Design Pattern:
+1. **Loose Coupling**: Weather station do not need to know about the observer class it just notify all.
+2. **Scalability**: New Observers can be added with minimum effors Open close principle.
+3. **Flexibility**: We can add and remove observers dynamically.
+
+
+### Observer Design Pattern Use Cases:
+1. Event Listener.
+2. Stock Price Monitoring.
+3. News Publishing system.
+4. Social Media Notification.
+5. Looging System.
