@@ -120,3 +120,103 @@ public class TextEditorMain {
     }
 }
 ```
+
+## 2. Observer Design Pattern
+#### AKA -> PUB - SUB Design Pattern
+
+The Observer design pattern is a behavioral design pattern that establishes a one-to-many dependency, allowing objects (Observers/subscribers) to automatically receive notifications and updates when another object (Subject/publisher/observable) changes its state, promoting loose coupling and efficient event handling without constant polling
+
+### Example:
+Let's say we have a weather station in the city and we need to transmit the weather data to all the people having certain type of device. In this case **Observer Design Pattern** will come into picture.
+
+
+### Code Example
+
+#### We have following components here for Weather Station System
+- **Weather Station**: Has sensor for tamprature and transmit the data to all the devices that has subscribed to it.
+- **Device**: Devices are responsible for displaying the info sent by Weather Station.
+
+```
+<<Subject>> [Interface]
+Weather station will implements Subject
+
+<<Device>> [Interface]
+Mobile, Display, Tab will implement Device
+```
+
+```java
+public interface Subject {
+    void attach(Device o);
+    void detach(Device o);
+    void notifyUpdate(String message);
+}
+```
+
+```java
+public class WeatherStation implements Subject {
+
+    List<Device> devices = new ArrayList<>();
+
+    @Override
+    public void attach(Device o) {
+        devices.add(o);
+    }
+
+    @Override
+    public void detach(Device o) {
+        devices.remove(o);
+    }
+
+    @Override
+    public void notifyUpdate(String message) {
+        for(Device d: devices) {
+            d.displayMessage(message);
+        }
+    }    
+}
+```
+
+```java
+public interface Device {
+    public void displayMessage(String message);
+}
+```
+
+```java
+public class Mobile implements Device{
+
+    @Override
+    public void displayMessage(String message) {
+        System.out.println("Mobile -> " + message);
+    }
+}
+```
+
+```java
+public class Screen implements Device{
+
+    @Override
+    public void displayMessage(String message) {
+        System.out.println("SCREEN -> " + message);
+    }
+}
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        WeatherStation station = new WeatherStation();
+
+        Mobile mobile = new Mobile();
+
+        station.attach(mobile);
+        station.attach(new Screen());
+
+        station.notifyUpdate("Update 1");
+
+        station.detach(mobile);
+
+        station.notifyUpdate("Update 2");
+    }
+}
+```
