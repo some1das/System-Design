@@ -233,3 +233,100 @@ public class Main {
 3. News Publishing system.
 4. Social Media Notification.
 5. Looging System.
+
+## Strategy Design Pattern
+
+Lets understand with an example of a **Payment Service**.
+In our Payment Service we have option of paying via multiple channels like Credit Card, Debit Card, UPI etc.
+If we simply want to implement the system then the system will look like:
+
+```java
+public class PaymentSystem {
+    public void makePayment(String paymentMethod) {
+        if(paymentMethod.equals("CREDIT_CARD")) {
+            System.out.println("Making Payment By Credit Card");
+        }
+        else if(paymentMethod.equals("DEBIT_CARD")) {
+            System.out.println("Making payment via Debit Card");
+        }
+    }
+}
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        PaymentSystem paymentSystem = new PaymentSystem();
+
+        paymentSystem.makePayment("CREDIT_CARD");
+        paymentSystem.makePayment("DEBIT_CARD");
+    }
+}
+```
+
+Now let's say I need to add new Payment Method UPI then I have to make change in the ```makePayment()``` method. Here we are modifying existing code which was already tested, hence we are not respecting **Open Close Principle**.
+
+### Lets solve all the issues with Strategy Design Pattern
+
+```
+ _____________________                    _________________
+| <<PaymentStrategy>> |                  | Payment System  |
+|---------------------| ---------------<>|-----------------|
+|+ void makePayment() |                  |
+|_____________________|
+```
+
+PaymentStrategy Interface which will be implemented by various Payment Channels.
+```java
+public interface PaymentStrategy {
+    public void makePayment();
+}
+```
+
+PaymentService is responsible for Processing Payment
+```java
+public class PaymentService {
+    public PaymentStrategy strategy;
+
+    public void setStrategy(PaymentStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public void processPayment() {
+        strategy.makePayment();
+    }
+}
+```
+
+```java
+public class DebitCardStrategy implements PaymentStrategy{
+    @Override
+    public void makePayment() {
+        System.out.println("Making Payment Via Debit Card...");
+    }
+}
+```
+
+```java
+public class CreditCardStrategy implements PaymentStrategy{
+
+    @Override
+    public void makePayment() {
+        System.out.println("Making Payment Via Credit Card...");
+    }
+    
+}
+```
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        PaymentService service = new PaymentService();
+
+        // service.setStrategy(new CreditCardStrategy());
+        service.setStrategy(new DebitCardStrategy());
+
+        service.processPayment();
+    }
+}
+```
