@@ -1,4 +1,4 @@
-package LLD.behavioural.strategyDesignPattern.bad_code;
+package behavioural.strategyDesignPattern.bad_code;
 
 public class Main {
     public static void main(String[] args) {

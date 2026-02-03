@@ -1,4 +1,4 @@
-package LLD.behavioural.strategyDesignPattern.good_code;
+package behavioural.strategyDesignPattern.good_code;
 
 public class Main {
     public static void main(String[] args) {

@@ -330,3 +330,61 @@ public class Main {
     }
 }
 ```
+
+All the problems that we have seen earlier have been fixed using strategy Design Pattern.
+
+
+## Command Design Pattern
+
+Let's create a text editor where we have different types of buttons like ```bold```, ```italic```, ```underlined``` etc.
+
+```java
+
+class TextEditor {
+    public void boldText() {
+        System.out.println("Bold Text...");
+    }
+
+    public void underLinedText() {
+        System.out.println("Underlined Text...");
+    }
+}
+
+// UI Button
+class BoldButton {
+    private TextEditor editor;
+
+    public BoldButton(TextEditor editor) {
+        this.editor = editor;
+    }
+
+    public void click() {
+        editor.boldText();
+    }
+}
+
+class UnderlinedButton {
+    private TextEditor editor;
+
+    public UnderlinedButton(TextEditor editor) {
+        this.editor = editor;
+    }
+
+    public void click() {
+        editor.underLinedText();
+    }
+}
+
+public class WithoutCommandPattern {
+    public static void main(String[] args) {
+        TextEditor editor = new TextEditor();
+        BoldButton boldButton = new BoldButton(editor);
+
+        boldButton.click();
+    }
+}
+
+```
+
+Here the button is tightly coupled with the ```TextEditor``` class. We want loose coupling here, for that command design pattern will help.
+

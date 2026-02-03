@@ -1,4 +1,4 @@
-package LLD.behavioural.strategyDesignPattern.bad_code;
+package behavioural.strategyDesignPattern.bad_code;
 
 public class PaymentSystem {
     public void makePayment(String paymentMethod) {

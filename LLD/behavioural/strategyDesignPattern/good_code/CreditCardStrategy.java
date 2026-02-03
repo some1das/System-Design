@@ -1,4 +1,4 @@
-package LLD.behavioural.strategyDesignPattern.good_code;
+package behavioural.strategyDesignPattern.good_code;
 
 public class CreditCardStrategy implements PaymentStrategy{
 
