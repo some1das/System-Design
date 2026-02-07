@@ -336,6 +336,12 @@ All the problems that we have seen earlier have been fixed using strategy Design
 
 ## Command Design Pattern
 
+Command is a behavioral design pattern that turns a request into a stand-alone object that contains all information about the request. This transformation lets you pass requests as a method arguments, delay or queue a request’s execution, and support undoable operations.
+
+![alt text](image.png)
+[Different commands are implementing Command interface]
+![alt text](image-1.png)
+
 Let's create a text editor where we have different types of buttons like ```bold```, ```italic```, ```underlined``` etc.
 
 ```java
@@ -388,3 +394,203 @@ public class WithoutCommandPattern {
 
 Here the button is tightly coupled with the ```TextEditor``` class. We want loose coupling here, for that command design pattern will help.
 
+```java
+// Command interface
+interface Command {
+    void execute();
+}
+
+// Concrete classes for Commands
+class BoldCommand implements Command {
+
+    private TextEditor editor;
+
+    public BoldCommand(TextEditor editor) {
+        this.editor = editor;
+    }
+
+    @Override
+    public void execute() {
+        editor.boldText();
+    }
+    
+}
+
+class TextEditor {
+    public void boldText() {
+        System.out.println("Bold Text...");
+    }
+
+    public void underLinedText() {
+        System.out.println("Underlined Text...");
+    }
+}
+
+// Button Class
+class Button {
+    private Command command;
+
+    public void setCommandn(Command command) {
+        this.command = command;
+    }
+
+    public void click() {
+        command.execute();
+    }
+}
+
+
+public class WithCommandDesignPattern {
+    public static void main(String[] args) {
+        TextEditor editor = new TextEditor();
+
+        Button button = new Button();
+
+        BoldCommand boldCommand = new BoldCommand(editor);
+
+        button.setCommandn(boldCommand);
+
+        button.click();
+        
+    }
+}
+```
+
+#### Command Design Pattern in Java
+Usage examples: The Command pattern is pretty common in Java code. Most often it’s used as an alternative for callbacks to parameterizing UI elements with actions. It’s also used for queueing tasks, tracking operations history, etc.
+
+Here are some examples of Commands in core Java libraries:
+- All implementations of java.lang.Runnable
+- All implementations of javax.swing.Action
+
+
+## Template Method Pattern
+
+Template Method is a behavioral design pattern that defines the skeleton of an algorithm in the superclass but lets subclasses override specific steps of the algorithm without changing its structure.
+
+![](image-2.png)
+
+### Example of Template Method Pattern
+Let's say we want to design a file parser system, where we need to parse csv, excel, doc & json.
+
+Think about the steps of the parsing:
+- Open file
+- Parse file
+- Close file
+
+Here ```Open and Close file``` both are common for every file parser, so we can put it to template.
+
+```java
+class CSVParser {
+    public void parse() {
+        openFile();
+        
+        // csvSpecificParsingLogin();
+        System.out.println("Parsing CSV file...");
+
+        closeFile();
+    }
+
+    private void openFile() {
+        System.out.println("Opening file...");
+    }
+
+    private void closeFile() {
+        System.out.println("Close file...");
+    }
+}
+
+class JSONParser {
+    public void parse() {
+        openFile();
+        
+        // jsonSpecificParsingLogin();
+        System.out.println("Parsing JSON file...");
+
+        closeFile();
+    }
+
+    private void openFile() {
+        System.out.println("Opening file...");
+    }
+
+    private void closeFile() {
+        System.out.println("Close file...");
+    }
+}
+
+
+public class FileParser {
+    public static void main(String[] args) {
+        CSVParser csvParser = new CSVParser();
+        csvParser.parse();
+
+        JSONParser jsonParser = new JSONParser();
+        jsonParser.parse();
+    }
+    
+}
+```
+
+Till now we do not know Template Pattern, 
+If we look closely `fileOpen()` and `fileClose()` function's implementation is getting duplicated.
+
+We have a principle in Software Engineering that `Do Not Repeat Your Self (DRY)`. Here DRY is not getting followed.
+
+### How do we fix this 🤔?
+
+Answer is `Template Design Pattern ✨`
+
+We will have a abstract class called ``FileParser``, there we will provide the implementation of the methods `fileOpen()` and `fileClose()`. The `fileParse()` method will be `abstract`. All class like CSVParser, DocParser will implement the abstract method as per their needs.
+
+
+```java
+abstract class FileParser {
+
+    public final void parse() {
+        fileOpen();
+        parseFile();
+        fileClose();
+    }
+
+    public void fileOpen() {
+        System.out.println("FIle Opened...");
+    }
+
+    public abstract void parseFile();
+
+    public void fileClose() {
+        System.out.println("File Closed...");
+    }
+}
+
+class CsvParser extends FileParser {
+
+    @Override
+    public void parseFile() {
+        System.out.println("Parsing CSV....");
+    }
+    
+}
+
+class JsonParser extends FileParser {
+
+    @Override
+    public void parseFile() {
+        System.out.println("Parsing JSON....");
+    }
+    
+}
+
+public class FileParserGood {
+    public static void main(String[] args) {
+        FileParser csvParser = new CsvParser();
+        FileParser jsonParser = new JsonParser();
+
+        csvParser.parse();
+        jsonParser.parse();
+    }
+    
+}
+
+```
