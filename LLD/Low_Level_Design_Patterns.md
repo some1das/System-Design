@@ -594,3 +594,150 @@ public class FileParserGood {
 }
 
 ```
+
+## Iterator Design Pattern
+Iterator is a behavioral design pattern that lets you traverse elements of a collection without exposing its underlying representation (list, stack, tree, etc.).
+
+Example:
+Lets say we have a Book class and a BookCOllection class, where we store the books in a list, and a client where we iterate over the books and display.
+
+Initially it was a list, but the maintainer changed it to a Set then everywhere we have to change because the iteration logic will break because for set it's different.
+
+Code:
+
+```java
+public class Book {
+    private String title;
+
+    public Book(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public String toString() {
+        return "Book { Title =  '" + this.title + "'}"; 
+    }
+}
+```
+
+```java
+public class BookCollection {
+    
+    private List<Book> books = new ArrayList<>();
+
+    public void addBood(Book book) {
+        this.books.add(book);
+    }
+
+    public List<Book> getBooks() {
+        return this.books;
+    }
+}
+```
+
+```java
+public class BadClient {
+    public static void main(String[] args) {
+        BookCollection collection = new BookCollection();
+
+        collection.addBood(new Book("Java"));
+        collection.addBood(new Book("C++"));
+        collection.addBood(new Book("Go"));
+
+        for(int i = 0; i < collection.getBooks().size(); i++) {
+            System.out.println(collection.getBooks().get(i));
+        }
+    }
+}
+/*
+* If we change the collection from List to Set then this code will break.
+*/
+```
+### Lets fix this using Iterator Design Pattern ✨
+
+```java
+public class Book {
+    private String title;
+
+    public Book(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public String toString() {
+        return "Book { Title =  '" + this.title + "'}"; 
+    }
+}
+```
+
+```java
+public class BookCollection {
+    private List<Book> books = new ArrayList<>();
+
+    public void addBood(Book book) {
+        this.books.add(book);
+    }
+
+    public List<Book> getBooks() {
+        return this.books;
+    }
+
+    public Iterator<Book> createIterator() {
+        return new BookIterator(this.books);
+    }
+
+    // Another class
+    private class BookIterator implements Iterator<Book> {
+        private List<Book> books;
+
+        private int position = 0;
+
+        public BookIterator(List<Book> books) {
+            this.books = books;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return position < this.books.size();
+        }
+
+        @Override
+        public Book next() {
+            return books.get(position++);
+        }
+    }
+}
+```
+
+```java
+public class GoodClient {
+    public static void main(String[] args) {
+        BookCollection collection = new BookCollection();
+
+        collection.addBood(new Book("Java"));
+        collection.addBood(new Book("C++"));
+        collection.addBood(new Book("Go"));
+
+        Iterator<Book> bookItr = collection.createIterator();
+
+        while (bookItr.hasNext()) {
+            System.out.println(bookItr.next());
+        }
+    }
+}
+```
+
+Here best part is client don't have to worry about the iteration logic, it's handled in clooection itself.
+
+### Pros
+- Single Responsibility Principle. You can clean up the client code and the collections by extracting bulky traversal algorithms into separate classes.
+ 
+ - Open/Closed Principle. You can implement new types of collections and iterators and pass them to existing code without breaking anything.
+ 
+ - You can iterate over the same collection in parallel because each iterator object contains its own iteration state.
+ 
+ - For the same reason, you can delay an iteration and continue it when needed.
+
+
+ ## State Pattern
+ 
