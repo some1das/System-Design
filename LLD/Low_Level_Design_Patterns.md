@@ -740,4 +740,258 @@ Here best part is client don't have to worry about the iteration logic, it's han
 
 
  ## State Pattern
- 
+
+We are creating a module for direction of map application, where we have to share the ETA based on different transport mode such as `CYCLE`, `CAR`, `WALKING` etc.
+
+Without State Pattern Code:
+
+```java
+enum TransporationMode {
+    WALKING, CAR, TRAIN
+}
+
+public class DirectionServiceBad {
+    private TransporationMode mode;
+
+    public DirectionServiceBad(TransporationMode mode) {
+        this.mode = mode;
+    }
+
+    public void setMode(TransporationMode mode) {
+        this.mode = mode;
+    }
+
+    // Method to calculate ETA
+    public int getETA() {
+        switch (mode) {
+            case WALKING:
+                System.out.println("Calculating ETA walking...");
+                return 10;
+            case CAR:
+                System.out.println("Calculating ETA walking...");
+                return 5;
+            default:
+                throw new IllegalArgumentException("Unknown Mode");
+        }
+    }
+
+    public String getDirection() {
+        switch (mode) {
+            case WALKING:
+                return "Directions for Walking: Head to north 500m";
+            case CAR:
+                return "Directions for  Car: Use highway 99";
+            default:
+                return "No direction";
+        }
+    }
+    
+}
+```
+
+Here let's say tomorrow I want to add new mode like flight then I have to modify the `TransporationMode` enum, also add new case in the `getDirection()` and `getETA()` methods of `DirectionServiceBad`. Which not following 
+- Open/ Close principle.
+- Tight coupling also there, and too many switch case will make the code base harder to maintain.
+
+### Solution is State Design Pattern
+
+#### Structure of State Pattern:
+
+- Context: Holds the reference to the current state.
+- State: Interface for state-specific behaviour.
+- Concrete State: Specific implementations of the state interface that represent a particular state of the context object.
+
+```java
+public interface TransportationMode {
+    int calculateETA();
+    String getDirection();
+}
+```
+
+```java
+public class Walking implements TransportationMode{
+
+    @Override
+    public int calculateETA() {
+        System.out.println("Calculating ETA for Walking...");
+        return 100;
+    }
+
+    @Override
+    public String getDirection() {
+        return "Direction - [Walking]: - Go staraight";
+    }
+    
+}
+```
+
+```java
+public class Car implements TransportationMode{
+
+    @Override
+    public int calculateETA() {
+        System.out.println("Calculating ETA for Car...");
+        return 50;
+    }
+
+    @Override
+    public String getDirection() {
+        return "Direction - [Car]: - Go staraight";
+    } 
+}
+```
+
+```java
+public class DirectionService {
+    TransportationMode transportationMode;
+
+    public DirectionService(TransportationMode mode) {
+        this.transportationMode = mode;
+    }
+
+    public int getEta() {
+        return transportationMode.calculateETA();
+    }
+
+    public String getDirection() {
+        return transportationMode.getDirection();
+    }
+}
+```
+
+```java
+public class GoodClient {
+    public static void main(String[] args) {
+        DirectionService service = new DirectionService(new Car());
+
+        service.getDirection();
+
+        service.getEta();
+    }
+}
+```
+
+## Mediator Design Pattern
+
+Example:
+Let's build a chat application's group chat module, where when a user sends a message it has to transmitted to every other users in the chat room. If the sending technique is one to one then there will be a complex web of communication with the growing users. There will be need of `O(n^2)` complexity.
+
+### Bad code example:
+
+```java
+class User {
+    private String name;
+
+    public User(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void sendMessage(String msg, User recipient) {
+        System.out.println(this.name + " Sending message to - "+ recipient.name);
+    }
+}
+
+public class WithoutMediatorDesignPattern {
+    public static void main(String[] args) {
+        User suman = new User("Suman");
+        User payel = new User("Payel");
+        User poli = new User("Poli");
+
+        suman.sendMessage("Hi", poli);
+        poli.sendMessage("Hiiiiiiiiii!", suman);
+
+        payel.sendMessage("Hello!", suman);
+    }
+}
+
+```
+
+The main problem here is every time a message need to be sent to other n - 1 user. And every participant has to be aware of other abd it's their responsibility to make sure to send the message to every other participants in the gtoup vhat.
+
+### Solution: Using mediator design pattern 🫰
+
+If we build same thing using mediator design pattern then there will be a group chat mediator who will be responsible to send messages to other n - 1 participants.
+
+```java
+class ChatUser {
+    private String name;
+
+    public ChatUser(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void recieveMessage(String msg, ChatUser sender) {
+        System.out.println(sender.name+ " Sayes to - "+ this.name + " : " + msg);
+    }
+}
+
+interface ChatMediator {
+
+    void sendMessage(String msg, ChatUser user);
+
+    void addUser(ChatUser user);
+}
+
+class ChatRoom implements ChatMediator {
+
+    private List<ChatUser> users;
+
+    public ChatRoom() {
+        this.users = new ArrayList<>();
+    }
+
+    @Override
+    public void sendMessage(String msg, ChatUser sender) {
+        for(ChatUser user: this.users) {
+            if(user.equals(sender)) continue;
+            user.recieveMessage(msg, sender);
+        }
+    }
+
+    @Override
+    public void addUser(ChatUser user) {
+        users.add(user);
+    }
+    
+}
+
+public class WithMediatorClient {
+
+    public static void main(String[] args) {
+        ChatMediator chatRoom = new ChatRoom();
+
+        ChatUser suman = new ChatUser("Suman");
+        ChatUser payel = new ChatUser("Payel");
+        ChatUser poli = new ChatUser("Poli");
+
+        chatRoom.addUser(suman);
+        chatRoom.addUser(payel);
+        chatRoom.addUser(poli);
+
+        chatRoom.sendMessage("Hiiiii", suman);
+    }
+}
+```
+
+### Mediator Pattern Benefits
+
+- Reduced Complexity: Centralizes the communication, reducing dependency between the objects.
+- Loose Coupling: Objects do not have to worry about the existance of other objects, it is managed by the mediator, here it is Chat Room.
+- Signle responsibility: The mediator handles the complex logics of communication, allowing the objects to focus on their own behaviours.
+- Centralized control: Changes of communication rules can be handled without effecting the participants.
+
+
+### Use Cases
+
+- Airport ATC.
+- GUI component co-ordination.
+- Workflow system.
+- Chat system.
