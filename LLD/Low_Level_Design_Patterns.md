@@ -995,3 +995,111 @@ public class WithMediatorClient {
 - GUI component co-ordination.
 - Workflow system.
 - Chat system.
+
+
+# Creational Design Patterns
+
+## Purpose
+Creational design patterns are focused on object creation mechanisms, aiming to optimize the creation process with ensuring flexibility.
+
+## Goal
+They abstract the instantion process to make system more flexible and resuable
+
+## Problem they solve
+Prevent tight coupling between code and object creation logic, symplifying the management of new object creation, specially in complex systems.
+
+### Singleton Design Pattern
+
+In some cases we want only one instance of a class to be created throughout the applications life-cycle, module like: Logger, database connections, setting config etc.
+
+If multiple instance are created then it may lead to:
+- Inconsistent state.
+- Resource conflict.
+
+```java
+public class AppSettings {
+    private String databaseUrl;
+
+    private String apiKey;
+
+    public AppSettings() {
+        this.databaseUrl = "jdbc://okey";
+        this.apiKey = "whjd23ry293ruf2io3huwegydgewidhwhede9==";
+    }
+
+    public String getDatabaseUrl() {
+        return this.databaseUrl;
+    }
+
+    public String getApiKey() {
+        return this.apiKey;
+    }
+}
+```
+
+```java
+public class BadClient {
+    public static void main(String[] args) {
+        AppSettings appSettings = new AppSettings();
+
+        AppSettings appSettingsCopy = new AppSettings();
+
+        System.out.println(appSettings.getApiKey());
+        System.out.println(appSettingsCopy.getApiKey());
+
+        // Here we are creating multiple instances of the class AppSettings
+        // But ideally only one object should be created
+        // This is leading to wastage of resources
+    }
+}
+```
+
+### Good code
+```java
+public class AppSettings {
+    private String databaseUrl;
+
+    private String apiKey;
+
+    // Create Instance of Self
+    private static AppSettings instance;
+
+    private AppSettings() {
+        this.databaseUrl = "jdbc://okey";
+        this.apiKey = "whjd23ry293ruf2io3huwegydgewidhwhede9==";
+    }
+
+    public static AppSettings getInstance() {
+        if(instance != null) {
+            return instance;
+        }
+        instance = new AppSettings();
+        return instance;
+    }
+
+    public String getDatabaseUrl() {
+        return this.databaseUrl;
+    }
+
+    public String getApiKey() {
+        return this.apiKey;
+    }
+}
+```
+
+```java
+public class GoodClient {
+    public static void main(String[] args) {
+        AppSettings setting1 = AppSettings.getInstance();
+        AppSettings setting2 = AppSettings.getInstance();
+
+        System.out.println(setting1.equals(setting2));
+    }
+}
+```
+
+Here we have single instance, we have ensured signle object creation of the AppSettings class using `Singleton` design pattern.
+
+## Factory Pattern
+
+
