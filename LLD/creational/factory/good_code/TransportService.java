@@ -1,4 +1,4 @@
-package creational.factory.bad_code;
+package creational.factory.good_code;
 
 public class TransportService {
     public static void main(String[] args) {

@@ -1102,4 +1102,216 @@ Here we have single instance, we have ensured signle object creation of the AppS
 
 ## Factory Pattern
 
+Factory design pattern helps centralize the creation logic and deligate the responsibility of creating object to factory classes, which decides the specific class to instantiate. This helps in obeying open close principle.
 
+```java
+public interface Transport {
+    void deliver();
+}
+```
+
+```java
+public class Bike implements Transport{
+    @Override
+    public void deliver() {
+        System.out.println("Deliver By Bike");
+    }
+}
+```
+
+```java
+public class Car implements Transport{
+
+    @Override
+    public void deliver() {
+        System.out.println("Deliver By Car");
+    }
+}
+```
+
+```java
+public class TransportFactory {
+    public static Transport createTransport(String type) {
+        switch (type.toLowerCase()) {
+            case "car":
+                return new Car();
+            case "bike":
+                return new Bike();      
+            default:
+                throw new  IllegalArgumentException();
+        }
+    }
+}
+```
+
+```java
+public class GoodClient {
+    public static void main(String[] args) {
+        Transport vehicle = TransportFactory.createTransport("car");
+
+        vehicle.deliver();
+    }
+}
+```
+
+The biggest advantage here are:
+- New vehicle can be added without modifying the client `[Open/Close Principle]`
+- Client and creation logic is completely decopupled.
+
+Real World use cases:
+- GUI Framework.
+- Database connectivity.
+- Document convertion logic.
+
+## Abstract Factory
+
+### Problem Statement
+We are building an application, which has different theme based on the OS. Windows theme has it's own button, pointer, scroll-bars etc, same way MacOS also have it's own button, pointer, scroll-bar. Challange is to make an architeture that allows switching between the themes without changing the client code.
+
+```java
+// Windows UI components
+class WindowsButton {
+    public  void render() {
+        System.out.println("Rendering windows UI button...");
+    }
+}
+
+class WindowsScrollBar {
+    public  void render() {
+        System.out.println("Rendering windows Scroll Bar...");
+    }
+}
+
+// Mac UI components
+class MacButton {
+    public  void render() {
+        System.out.println("Rendering MAC UI button...");
+    }
+}
+
+class MacScrollBar {
+    public  void render() {
+        System.out.println("Rendering MAC Scroll Bar...");
+    }
+}
+
+public class ApplicationBad {
+    public static void main(String[] args) {
+        // Windows UI
+        WindowsButton button = new WindowsButton();
+        WindowsScrollBar scrollBar = new WindowsScrollBar();
+
+        button.render();
+        scrollBar.render();
+
+    }
+}
+```
+Here the biggest problem is tight coupling. The client is directly dependent on the concrete classes, which is not solving our purpose.
+For Mac UI we have to modify the client.
+
+### Solution is Abstract Factory Pattern
+
+Provides an interface for creating families of related objects without specefing their concrete classes.
+
+#### Structure
+- Abstract Factory: Interface for creating the abstract products.
+- Concrete Factory: Implements the abstract factory and created the concertr profucts.
+
+```java
+// Abstract Product Interface
+
+interface Button {
+    void render();
+}
+
+interface ScrollBar {
+    void scroll();
+}
+
+// Windows UI components
+class WindowsButton implements Button{
+    public  void render() {
+        System.out.println("Rendering windows UI button...");
+    }
+}
+
+class WindowsScrollBar implements ScrollBar{
+    public  void scroll() {
+        System.out.println("Rendering windows Scroll Bar...");
+    }
+}
+
+// Mac UI components
+class MacButton implements Button{
+    public  void render() {
+        System.out.println("Rendering MAC UI button...");
+    }
+}
+
+class MacScrollBar implements ScrollBar{
+    public  void scroll() {
+        System.out.println("Rendering MAC Scroll Bar...");
+    }
+}
+
+interface UIFactory {
+    public Button createButton();
+
+    public ScrollBar createScrollBar();
+}
+
+class WindowsFactory implements UIFactory {
+
+    @Override
+    public Button createButton() {
+        return new WindowsButton();
+    }
+
+    @Override
+    public ScrollBar createScrollBar() {
+        return new WindowsScrollBar();
+    }
+    
+}
+
+class MacFactory implements UIFactory {
+
+    @Override
+    public Button createButton() {
+        return new MacButton();
+    }
+
+    @Override
+    public ScrollBar createScrollBar() {
+        return new MacScrollBar();
+    }
+    
+}
+
+
+
+public class ApplicationGod{
+    private Button button;
+
+    private ScrollBar scrollBar;
+
+    public ApplicationGod(UIFactory factory) {
+        this.button = factory.createButton();
+        this.scrollBar = factory.createScrollBar();
+    }
+
+    public void renderUI() {
+        button.render();
+        scrollBar.scroll();
+    }
+    public static void main(String[] args) {
+        // Windows UI
+        UIFactory factory = new WindowsFactory();
+        ApplicationGod application = new ApplicationGod(factory);
+
+        application.renderUI();
+
+    }
+}
+```
