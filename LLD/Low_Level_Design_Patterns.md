@@ -1596,3 +1596,73 @@ Here the cloning logic is being handled by the class itself reducing the scope o
 
 
 ## Adapter Design Pattern
+Adapter design pattern is a structural design pattern that allows the objects with incompatable intaerface to work togather.
+Example: we have charging adapter.
+
+Let's take an example of inhouse email service that will be replaced by third party email service say send grid.
+
+```java
+public interface NotificationService {
+    void send(String to, String subject, String body);
+}
+
+```
+
+```java
+// Legacy code
+public class EmailNotificationService implements NotificationService{
+    public void send(String to, String subject, String body) {
+        System.out.println("Sending = " + to);
+        System.out.println("Subject = " + subject);
+        System.out.println("Body = " + body);
+    }
+}
+```
+
+```java
+public class Client {
+    public static void main(String[] args) {
+        NotificationService emailService = new EmailNotificationService();
+        emailService.send("sumandas@gamil.com", "Job - Software Engineer", "Job Description");
+
+        // Use sendgrid service for email
+        NotificationService newNotificationServivce = new SendGridAdapter(new SendGridSrvice());
+        newNotificationServivce.send("payel@gmail.com", "Hi, Payel", "Message body");
+    }
+}
+```
+
+Now we want to use sendbox instead of our in-house notification service.
+For that we need to use adapter design pattern because parameter expected by send-grid email is different.
+
+```java
+public class SendGridSrvice {
+    public void sendEmil(String recipient, String title, String content) {
+        System.out.println("Sending email via send grid to " + recipient);
+        System.out.println("Title: " + title);
+        System.out.println("Content: " + content);
+    }
+}
+```
+
+```java
+public class SendGridAdapter implements NotificationService{
+
+    private SendGridSrvice sendGridSrvice;
+
+    public SendGridAdapter(SendGridSrvice service) {
+        this.sendGridSrvice = service;
+    }
+
+    @Override
+    public void send(String to, String subject, String body) {
+        // Adapter method - converts parametaers and call function of sendGrid
+        sendGridSrvice.sendEmil(to, subject, body);
+    }
+}
+```
+
+### Benefits
+- Resuability
+- Flexibility
+- Decoupling
