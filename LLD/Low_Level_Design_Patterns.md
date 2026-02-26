@@ -1315,3 +1315,284 @@ public class ApplicationGod{
     }
 }
 ```
+
+## Builder Design Pattern
+
+When a class have many parameters including required and optional parameters then maintaining the class and it's creation using constructor becomes extremely difficult. This issue can lead to:
+- Long constructor Parameter list.
+- Difficulity in understanding which values are optionsal or required.
+- Lack of flexibility when it comes to setting only same value.
+
+```java
+public class House {
+    private String foundation;
+    private String Structure;
+    private String roof;
+    private int rooms;
+    private int floors;
+    private int swimmingPool;
+
+    public House(String foundation) {
+        this.foundation = foundation;
+    }
+
+    public House(String roof, int swimmingPool) {
+        this.roof = roof;
+        this.swimmingPool = swimmingPool;
+    }
+    
+}
+```
+
+Here for different initialization we need different constructors, which will create dealing with constructors extremely difficult. Also some constructors combination are not allowed in Programming language, like:
+```java
+public House(String foundation) {
+        this.foundation = foundation;
+    }
+
+    public House(String roof) {
+        this.roof = roof;
+    }
+```
+
+### Solution: Builder Design Pattern
+```java
+public class Car {
+    // Required Parameters
+    private String brand;
+    private String model;
+
+    // Optional Parameters
+    private String description;
+    private double price;
+
+    private Car(Builder builder) {
+        this.brand = builder.brand;
+        this.model = builder.model;
+        this.description = builder.description;
+        this.price = builder.price;
+    }
+
+    
+
+    public static class Builder {
+        // Required Parameters
+        private String brand;
+        private String model;
+
+        // Optional Parameters
+        private String description;
+        private double price;
+
+        public Builder(String brand, String model) {
+            this.brand = brand;
+            this.model = model;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder price(Double price) {
+            this.price = price;
+            return this;
+        }
+
+        public Car build() {
+            return new Car(this);
+        }
+    }
+}
+```
+
+## Prototype Design Pattern
+
+Prototype design pattern is helpful for cloning of object. It makes delegates the cloning process to the object that's clone is needed to be created. An object that supports cloning is called a prototype.
+
+Example: I have a board game, where we have different pieces with some specific colors. I need to save the progress of the game, so that If I want to go back previous checkpoiant then I should be able to go easily.
+Here is the code:
+
+```java
+public class GamePiece {
+    private String color;
+    private int position;
+
+    public GamePiece(String color, int position) {
+        this.color = color;
+        this.position = position;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public String getColor() {
+        return this.color;
+    }
+
+    public int getPosition() {
+        return this.position;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + "color = " + color + " ," + "position = " + position + "}";
+    }
+}
+```
+
+```java
+public class GameBoard {
+    private List<GamePiece> pieces = new ArrayList<>();
+
+    public void addPiece(GamePiece piece) {
+        this.pieces.add(piece);
+    }
+
+    public List<GamePiece> getPieces() {
+        return this.pieces;
+    }
+
+    public void showCurrentBoardState() {
+        for(GamePiece p: pieces) {
+            System.out.println(p);
+        }
+    }
+}
+```
+In the client We are trying to copy the state of the game so that we can any time come back and restore the previous state of the game.
+But there is a problem: what if I change the `GamePiece` class and add few more attributes, in this case every client need to change the logic of implementation. This will lead to so much code duplication and make modification to the `Piece` class harder, as it involves changing the cloning logic everywhere.
+```java
+public class GameClientWithoutPrototype {
+    public static void main(String[] args) {
+        GameBoard gb = new GameBoard();
+        gb.addPiece(new GamePiece("Red", 0));
+        gb.addPiece(new GamePiece("Green", 1));
+
+        gb.showCurrentBoardState();
+
+
+        // Let's save the game 
+        GameBoard checkPoint1 = new GameBoard();
+
+        for(GamePiece gp: gb.getPieces()) {
+            checkPoint1.addPiece(new GamePiece(gp.getColor(), gp.getPosition()));
+        }
+
+        checkPoint1.showCurrentBoardState();
+
+    }
+}
+```
+### Solution: Prototype Design Pattern
+We will write the cloning logic in the class it self the delegate cloning process to the object, so that our developer changes the class, then cloning logic can also be changed there, which will save us from code duplication and extension of the classes functionality easier.
+
+```java
+public interface Prototype<T> {
+    T clone();
+}
+```
+
+```java
+public class GamePiece implements Prototype<GamePiece>{
+    private String color;
+    private int position;
+
+    public GamePiece(String color, int position) {
+        this.color = color;
+        this.position = position;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public String getColor() {
+        return this.color;
+    }
+
+    public int getPosition() {
+        return this.position;
+    }
+
+    public GamePiece clonePiece() {
+        return new GamePiece(this.color, this.position);
+    }
+
+    @Override
+    public String toString() {
+        return "{" + "color = " + color + " ," + "position = " + position + "}";
+    }
+
+    @Override
+    public GamePiece clone() {
+        return new GamePiece(color, position);
+    }
+}
+```
+
+```java
+public class GameBoard implements Prototype<GameBoard> {
+    private List<GamePiece> pieces = new ArrayList<>();
+
+    public void addPiece(GamePiece piece) {
+        this.pieces.add(piece);
+    }
+
+    public List<GamePiece> getPieces() {
+        return this.pieces;
+    }
+
+    public void showCurrentBoardState() {
+        for(GamePiece p: pieces) {
+            System.out.println(p);
+        }
+    }
+
+    @Override
+    public GameBoard clone() {
+        GameBoard newGameBoard = new GameBoard();
+        for(GamePiece gp: pieces) {
+            newGameBoard.addPiece(gp.clone());
+        }
+        return newGameBoard;
+    }
+}
+```
+
+```java
+public class GameClientWithPrototype {
+    public static void main(String[] args) {
+        GameBoard gb = new GameBoard();
+        gb.addPiece(new GamePiece("Red", 0));
+        gb.addPiece(new GamePiece("Green", 1));
+
+        gb.showCurrentBoardState();
+
+
+        // Let's save the game 
+        GameBoard checkPoint1 = new GameBoard();
+
+        for(GamePiece gp: gb.getPieces()) {
+            checkPoint1.addPiece(new GamePiece(gp.getColor(), gp.getPosition()));
+        }
+
+        checkPoint1.showCurrentBoardState();
+
+    }
+}
+```
+
+Here the cloning logic is being handled by the class itself reducing the scope of error while cloning. Also ensured Open/ Close principle.
+
+# Structural Design Pattern
+
+
+## Adapter Design Pattern
