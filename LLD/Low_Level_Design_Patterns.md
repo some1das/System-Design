@@ -1829,3 +1829,82 @@ Pro's:
 - Flexible
 - Scalable
 - Following SRP
+
+## Proxy Pattern
+
+Proxy is a structural design pattern that lets you provide a substitute or placeholder for another object. A proxy controls access to the original object, allowing you to perform something either before or after the request gets through to the original object.
+
+![alt text](image-3.png)
+
+### Senario:
+
+Let's say we have a image display system, where we load image and display in the client. Loading image is resource intensive and it involves disk IO. We need some kind of caching along with lazy loading. Here comes proxy pattern.
+
+```java
+interface Image {
+    void display();
+}
+```
+
+```java
+/**
+ * Here we are loading and displaying image
+*/
+public class RealImage implements Image{
+
+    private String fileName;
+
+    public RealImage(String fileName) {
+        this.fileName = fileName;
+        loadImageFromDisk();
+    }
+
+    private void loadImageFromDisk() {
+        System.out.println("Loading image from disk..." + this.fileName);
+    }
+
+    @Override
+    public void display() {
+        System.out.println("Displaying " + this.fileName);
+    }
+}
+```
+
+```java
+public class ProxyImage {
+    private String fileName;
+
+    private Image image;
+
+    public ProxyImage(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void display() {
+        if(image == null) {
+            image = new RealImage(fileName);
+        }
+        image.display();
+    }
+}
+```
+
+```java
+public class Client {
+    public static void main(String[] args) {
+        ProxyImage img = new ProxyImage("dog.png");
+
+        img.display();
+        img.display();
+        
+    }
+}
+```
+
+## Composite Pattern
+
+`Problem`: When building a system like file directory, which consists both individual items (files) and group of items (directories), managing those with shared object hierarchies can become very complex.
+
+`Solution`: composite pattern
+
+
