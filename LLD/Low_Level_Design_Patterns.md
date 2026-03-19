@@ -1666,3 +1666,166 @@ public class SendGridAdapter implements NotificationService{
 - Resuability
 - Flexibility
 - Decoupling
+
+## Decorator Design Pattern
+Decorator is a structural design pattern that lets you attach new behaviors to objects by placing these objects inside special wrapper objects that contain the behaviors.
+
+Let's have an example of Pizaa System,
+Where we have different types of pizza's such as
+
+- Basic Pizza
+- Cheese Pizza
+- Olive Pizza
+- Cheese Olive Pizza
+- Cheese Panner Pizza
+- Paper Pizza
+- Paper Paneer Pizza
+
+The combitions are endless, so fo every combination we need to write different class, OMG it's not possible.
+Also maintainability will also be a big challenge. Let's say we have 1000 differnt combinations then we can not simply scale the system by writing more and more classes.
+
+```java
+public interface Pizza {
+    String getDescription();
+    double getCost(); 
+}
+```
+
+```java
+public class BasicPizza implements Pizza{
+
+    @Override
+    public String getDescription() {
+        return "Basic Pizza";
+    }
+
+    @Override
+    public double getCost() {
+        return 5.00;
+    }
+}
+```
+
+```java
+public class CheesePizza extends BasicPizza{
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Cheese";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 2;
+    }
+}
+```
+
+```java
+public class CheeseOlivePizza extends CheesePizza{
+    @Override
+    public String getDescription() {
+        return super.getDescription() + ", Olive";
+    }
+
+    @Override
+    public double getCost() {
+        return super.getCost() + 1;
+    }
+}
+```
+
+```java
+public class PizzaApp {
+    public static void main(String[] args) {
+        Pizza pizza = new CheeseOlivePizza();
+
+        System.out.println(pizza.getDescription());
+    }
+}
+```
+
+I can not write more classes for more pizza's I need some solution 😭😭
+
+### Solution: Decorator Design Pattern 😍
+
+We will have decorator classes that will add specific ingredent to pizza sequentially, we do not need to maintain any combinations of ingredients.
+
+```uml
+Basic Pizza  ---> [Cheese Decorator] ---> Cheese Pizza
+Cheese Pizza ---> [Paneer Decorator] ---> Panner Pizza
+```
+
+```java
+public interface Pizza {
+    String getDescription();
+    double getCost(); 
+}
+```
+
+```java
+public class BasicPizza implements Pizza{
+
+    @Override
+    public String getDescription() {
+        return "Basic Pizza";
+    }
+
+    @Override
+    public double getCost() {
+        return 5.00;
+    }
+}
+```
+```java
+abstract class PizzaDecorator implements Pizza{
+    protected Pizza decoratedPizza;
+    public PizzaDecorator(Pizza pizza) {
+        this.decoratedPizza = pizza;
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedPizza.getDescription();
+    }
+
+    @Override
+    public double getCost() {
+        return decoratedPizza.getCost();
+    }
+}
+```
+```java
+public class CheeseDecorator extends PizzaDecorator {
+    public CheeseDecorator(Pizza pizza) {
+        super(pizza);
+    }
+
+    @Override
+    public String getDescription() {
+        return decoratedPizza.getDescription() + ", Cheese";
+    }
+
+    @Override
+    public double getCost() {
+        return decoratedPizza.getCost() + 10;
+    }
+}
+```
+```java
+public class PizzaApp {
+    public static void main(String[] args) {
+        Pizza pizza = new BasicPizza();
+
+        pizza = new CheeseDecorator(pizza);
+
+        System.out.println(pizza.getDescription());
+    }
+}
+
+```
+
+Pro's:
+
+- Flexible
+- Scalable
+- Following SRP
