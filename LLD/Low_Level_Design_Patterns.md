@@ -1907,4 +1907,129 @@ public class Client {
 
 `Solution`: composite pattern
 
+```java
+public class File {
+    String name;
 
+    public File(String name) {
+        this.name = name;
+    }
+
+    public void showDetails() {
+        System.out.println("File: "+ name);
+    }
+}
+```
+```java
+public class Folder {
+    private String name;
+
+    private List<File> files = new ArrayList<>();
+
+    public Folder(String name) {
+        this.name = name;
+    }
+
+    public void addFile(File file) {
+        files.add(file);
+    }
+
+    public void showDetails() {
+        System.out.println("Folder: " + name);
+        for(File file: files) {
+            file.showDetails();
+        }
+    }
+}
+```
+```java
+public class FileSystemApp {
+    public static void main(String[] args) {
+        File file1 = new File("file1.php");
+        File file2 = new File("file2.php");
+        File file3 = new File("file3.php");
+
+        Folder folder1 = new Folder("documents");
+
+        folder1.addFile(file1);
+        folder1.addFile(file2);
+        folder1.addFile(file3);
+    }
+}
+```
+
+The biggest problem in the above code is we are not able to treat file and folders same way, imaging this is a tree structure where files are leaf nodes.
+
+Solution make a common interface, file and folder both sould implement them
+```java
+public interface FileSystemComponent {
+    void showDetails();
+}
+```
+```java
+public class File implements FileSystemComponent{
+    String name;
+
+    public File(String name) {
+        this.name = name;
+    }
+
+    public void showDetails() {
+        System.out.println("File: "+ name);
+    }
+}
+```
+```java
+public class Folder implements FileSystemComponent{
+    private String name;
+
+    private List<FileSystemComponent> components = new ArrayList<>();
+
+    public Folder(String name) {
+        this.name = name;
+    }
+
+    public void addComponent(FileSystemComponent component) {
+        components.add(component);
+    }
+
+    public void showDetails() {
+        System.out.println("Folder: " + name);
+        for(FileSystemComponent component: components) {
+            component.showDetails();
+        }
+    }
+}
+```
+
+```java
+public class FileSystemApp {
+    public static void main(String[] args) {
+        FileSystemComponent file1 = new File("file1.php");
+        FileSystemComponent file2 = new File("file2.php");
+        FileSystemComponent file3 = new File("file3.php");
+
+        Folder folder1 = new Folder("documents");
+
+        folder1.addComponent(file1);
+        folder1.addComponent(file2);
+        folder1.addComponent(file3);
+
+        // Sub folder
+        Folder subFolder = new Folder("child_folder");
+
+        FileSystemComponent file4 = new File("file4.py");
+        FileSystemComponent file5 = new File("file5.py");
+        FileSystemComponent file6 = new File("file6.py"); 
+        
+        subFolder.addComponent(file4);
+        subFolder.addComponent(file5);
+        subFolder.addComponent(file6);
+
+        folder1.addComponent(subFolder);
+
+        folder1.showDetails();
+
+    }
+}
+```
